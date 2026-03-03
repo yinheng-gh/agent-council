@@ -3,6 +3,7 @@ import { Hono } from "hono";
 import { logger } from "../lib/logger";
 import { mcpServer } from "../lib/mcp-server";
 import "./council";
+import "./db-tools";
 
 export const mcpRoutes = new Hono();
 const transport = new StreamableHTTPTransport({

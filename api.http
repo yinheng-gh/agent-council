@@ -33,3 +33,35 @@ accept: application/json, text/event-stream
   "method": "tools/list",
   "params": {}
 }
+
+### MCP call db_guide
+POST {{baseUrl}}/mcp
+content-type: application/json
+accept: application/json, text/event-stream
+
+{
+  "jsonrpc": "2.0",
+  "id": 3,
+  "method": "tools/call",
+  "params": {
+    "name": "db_guide",
+    "arguments": {}
+  }
+}
+
+### MCP call sql
+POST {{baseUrl}}/mcp
+content-type: application/json
+accept: application/json, text/event-stream
+
+{
+  "jsonrpc": "2.0",
+  "id": 4,
+  "method": "tools/call",
+  "params": {
+    "name": "sql",
+    "arguments": {
+      "sql": "SELECT id, title, status, created_at FROM council_topics ORDER BY created_at DESC LIMIT 20"
+    }
+  }
+}

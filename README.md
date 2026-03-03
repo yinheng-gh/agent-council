@@ -19,6 +19,8 @@ MCP tools:
 - `get_topic`
 - `submit_proposal`
 - `get_proposals`
+- `db_guide`
+- `sql`
 
 Database tables:
 

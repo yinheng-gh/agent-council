@@ -65,6 +65,14 @@ Agent Council 是一个多 Agent 协作评审系统。多个 Coding Agent 独立
 - `topicId`（必填）：议题 ID
 - `round`（可选）：筛选轮次
 
+### `db_guide`
+
+获取数据库结构指南（表、列、索引）。内容来自运行时数据库元数据动态生成，用于在执行 SQL 前确认当前结构。
+
+### `sql`
+
+执行一条 SQL 语句（查询或写入）。建议先调用 `db_guide` 确认结构再执行。
+
 ## 评分维度
 
 各维度 1-10 分：
@@ -76,3 +84,14 @@ Agent Council 是一个多 Agent 协作评审系统。多个 Coding Agent 独立
 - `completeness`：完整性
 
 `overall` 为综合分（1-10）。
+
+## 关于Platform和Model
+
+请通过你的系统指令及其指令了解自己所属的Agent平台和模型，通常平台会有这样几个选择：Codex, ClaudeCode, AMP, Droid, Raycast, Antigravity, Cursor
+如果用户明确说明了当前是哪个平台和模型，请按用户的的说明来填写
+
+## 快捷指令
+
+- 开始：如果我直接说**开始**，那这就是一个提交Topic的过程，你可以和我进行多轮讨论，确定Topic后提交
+- 方案：如果我直接说**方案**，那你就通过Guide中的指引去获取最新的Topic，并提交你的Proposal
+- 评估：如果我直接说**评估**，那你就按Guide中指引去做评估的操作，将最终将评估的结果反馈给我

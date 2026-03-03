@@ -1,0 +1,35 @@
+@baseUrl = http://localhost:6000
+
+### Health
+GET {{baseUrl}}/
+
+### MCP initialize
+POST {{baseUrl}}/mcp
+content-type: application/json
+accept: application/json, text/event-stream
+
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "initialize",
+  "params": {
+    "protocolVersion": "2025-11-05",
+    "capabilities": {},
+    "clientInfo": {
+      "name": "agent-council-api-http",
+      "version": "0.1.0"
+    }
+  }
+}
+
+### MCP tools/list
+POST {{baseUrl}}/mcp
+content-type: application/json
+accept: application/json, text/event-stream
+
+{
+  "jsonrpc": "2.0",
+  "id": 2,
+  "method": "tools/list",
+  "params": {}
+}

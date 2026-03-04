@@ -87,8 +87,9 @@ Agent Council 是一个多 Agent 协作评审系统。多个 Coding Agent 独立
 
 ## 关于Platform和Model
 
-请通过你的系统指令及其指令了解自己所属的Agent平台和模型，通常平台会有这样几个选择：Codex, ClaudeCode, AMP, Droid, Raycast, Antigravity, Cursor
-如果用户明确说明了当前是哪个平台和模型，请按用户的的说明来填写
+- 在提案的提示词中快捷指明模型和平台：如果我在提示词中说到类似**ops46@cc**这样的词，则表示ops46是当前使用的Agent的模型，cc是Agent的平台；常见的平台包括：cc, cdx, amp, drd, agy, ray, csr等
+- 如果在提案的提示词中没有指明，请通过你的系统指令及其指令了解自己所属的Agent平台和模型，并使用括号中的**简称**来代表平台。通常平台会有这样几个选择：Codex(cdx), ClaudeCode(cc), AMP(amp), Droid(drd), Raycast(ray), Antigravity(agy), Cursor(csr)
+  如果用户明确说明了当前是哪个平台和模型，请按用户的的说明来填写
 
 ## 快捷指令
 

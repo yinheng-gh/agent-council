@@ -42,7 +42,7 @@ function parseDimensions(raw: string): Record<string, number> {
 export function buildProposalsSummary(
   topic: TopicInfo,
   proposals: ProposalRow[],
-  scores: ScoreRow[]
+  scores: ScoreRow[],
 ): string {
   const parts: string[] = [];
 
@@ -55,7 +55,7 @@ export function buildProposalsSummary(
       proposal.proposalType === "evaluation" ? " (Evaluation)" : "";
 
     parts.push(
-      `# Agent: ${platform} (${model}) [Round ${proposal.round}]${typeLabel}\n\n${proposal.content}`
+      `# Agent: ${model}@${platform} [Round ${proposal.round}]${typeLabel}\n\n${proposal.content}`,
     );
   }
 
@@ -70,23 +70,25 @@ export function buildProposalsSummary(
     const lines: string[] = [];
     lines.push("## 评分汇总\n");
     lines.push(
-      "| 被评方案 | 评估者 | Overall | Correctness | Alignment | Robustness | Maintainability | Completeness |"
+      "| 被评方案 | 评估者 | Overall | Correctness | Alignment | Robustness | Maintainability | Completeness |",
     );
     lines.push(
-      "|----------|--------|---------|-------------|-----------|------------|-----------------|--------------|"
+      "|----------|--------|---------|-------------|-----------|------------|-----------------|--------------|",
     );
 
     for (const [proposalId, proposalScores] of scoresByProposal) {
-      const targetProposal = proposals.find((proposal) => proposal.id === proposalId);
+      const targetProposal = proposals.find(
+        (proposal) => proposal.id === proposalId,
+      );
       const targetLabel = targetProposal
-        ? `${targetProposal.agentPlatform || "Unknown"} (${targetProposal.agentModel || "Unknown"})`
+        ? `${targetProposal.agentModel || "Unknown"}@${targetProposal.agentPlatform || "Unknown"}`
         : proposalId.slice(0, 8);
 
       for (const score of proposalScores) {
-        const evaluator = `${score.agentPlatform || "Unknown"} (${score.agentModel || "Unknown"})`;
+        const evaluator = `${score.agentModel || "Unknown"}@${score.agentPlatform || "Unknown"}`;
         const dimensions = parseDimensions(score.dimensions);
         lines.push(
-          `| ${targetLabel} | ${evaluator} | ${score.overall} | ${dimensions.correctness ?? "-"} | ${dimensions.alignment ?? "-"} | ${dimensions.robustness ?? "-"} | ${dimensions.maintainability ?? "-"} | ${dimensions.completeness ?? "-"} |`
+          `| ${targetLabel} | ${evaluator} | ${score.overall} | ${dimensions.correctness ?? "-"} | ${dimensions.alignment ?? "-"} | ${dimensions.robustness ?? "-"} | ${dimensions.maintainability ?? "-"} | ${dimensions.completeness ?? "-"} |`,
         );
       }
     }
@@ -96,4 +98,3 @@ export function buildProposalsSummary(
 
   return parts.join("\n\n---\n\n");
 }
-

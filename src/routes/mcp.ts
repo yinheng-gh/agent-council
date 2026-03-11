@@ -1,5 +1,6 @@
 import { StreamableHTTPTransport } from "@hono/mcp";
 import { Hono } from "hono";
+import { clientContext } from "../lib/client-context";
 import { logger } from "../lib/logger";
 import { mcpServer } from "../lib/mcp-server";
 import "./council";
@@ -20,5 +21,10 @@ mcpRoutes.all("/", async (c) => {
     path: c.req.path,
   });
 
-  return transport.handleRequest(c);
+  const platform = c.req.query("platform") ?? "";
+  const model = c.req.query("model") ?? "";
+
+  return clientContext.run({ platform, model }, () => {
+    return transport.handleRequest(c);
+  });
 });

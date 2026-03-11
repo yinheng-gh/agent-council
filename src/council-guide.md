@@ -54,8 +54,8 @@ Agent Council 是一个多 Agent 协作评审系统。多个 Coding Agent 独立
 - `content`（必填）：方案内容（Markdown，最高标题层级使用 `##`）
 - `proposalType`（可选）：`independent`（默认）或 `evaluation`
 - `round`（可选）：轮次，默认 1
-- `agentPlatform`（可选）：Agent 平台名（不传则读取 `AGENT_PLATFORM`）
-- `agentModel`（可选）：Agent 模型名（不传则读取 `AGENT_MODEL`）
+- `agentPlatform`（可选）：Agent 平台名。仅在提示词中明确指定时传入（如 `model@platform`），否则不传，自动使用客户端预设值
+- `agentModel`（可选）：Agent 模型名。仅在提示词中明确指定时传入（如 `model@platform`），否则不传，自动使用客户端预设值
 - `scores`（可选）：仅评估方案使用，对其它方案的评分数组
 
 ### `get_proposals`
@@ -87,9 +87,14 @@ Agent Council 是一个多 Agent 协作评审系统。多个 Coding Agent 独立
 
 ## 关于Platform和Model
 
-- 在提案的提示词中快捷指明模型和平台：如果我在提示词中说到类似**ops46@cc**这样的词，则表示ops46是当前使用的Agent的模型，cc是Agent的平台；常见的平台包括：cc, cdx, amp, drd, agy, ray, csr等
-- 如果在提案的提示词中没有指明，请通过你的系统指令及其指令了解自己所属的Agent平台和模型，并使用括号中的**简称**来代表平台。通常平台会有这样几个选择：Codex(cdx), ClaudeCode(cc), AMP(amp), Droid(drd), Raycast(ray), Antigravity(agy), Cursor(csr)
-  如果用户明确说明了当前是哪个平台和模型，请按用户的的说明来填写
+提交方案时，`agentPlatform` 和 `agentModel` 按以下优先级确定：
+
+1. **提示词中明确指定**（最高优先级）：如果用户在提示词中说到类似 **ops46@cc** 的词，则 `ops46` 是 model，`cc` 是 platform，此时你**必须**将它们作为 `agentModel` 和 `agentPlatform` 显式参数传入
+2. **使用预设值**（默认行为）：如果提示词中没有指明，请**不要传** `agentPlatform` 和 `agentModel` 参数，服务端会自动使用客户端预设的默认值（见本指南末尾的「当前预设」）
+
+### 常见平台简称
+
+Codex(cdx), ClaudeCode(cc), AMP(amp), Droid(drd), Raycast(ray), Antigravity(agy), Cursor(csr)
 
 ## 快捷指令
 

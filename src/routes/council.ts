@@ -5,6 +5,7 @@ import {
   councilScoresTable,
   councilTopicsTable,
 } from "../db/schema";
+import { getClientDefaults } from "../lib/client-context";
 import { buildProposalsSummary, getCouncilGuideContent } from "../lib/council";
 import db from "../lib/db";
 import { logger } from "../lib/logger";
@@ -17,9 +18,22 @@ mcpServer.registerTool(
     description:
       "Get the Agent Council guide. Call this before using other council tools.",
   },
-  async () => ({
-    content: [{ type: "text", text: getCouncilGuideContent() }],
-  })
+  async () => {
+    const defaults = getClientDefaults();
+    let guide = getCouncilGuideContent();
+
+    const lines: string[] = ["\n\n## 当前预设\n"];
+    lines.push(`- **默认平台**: ${defaults.platform || "(未设置)"}`);
+    lines.push(`- **默认模型**: ${defaults.model || "(未设置)"}`);
+    lines.push(
+      "\n提交方案时不传 `agentPlatform` 和 `agentModel`，将自动使用以上预设值。若提示词中指定了 `model@platform` 格式，以提示词为准，将其作为显式参数传入。"
+    );
+    guide += lines.join("\n");
+
+    return {
+      content: [{ type: "text", text: guide }],
+    };
+  }
 );
 
 mcpServer.registerTool(
@@ -176,11 +190,15 @@ mcpServer.registerTool(
       agentPlatform: z
         .string()
         .optional()
-        .describe("Agent platform name, fallback to AGENT_PLATFORM"),
+        .describe(
+          "Agent platform name. Only pass when explicitly specified in prompt (e.g. model@platform). Otherwise omit to use client preset."
+        ),
       agentModel: z
         .string()
         .optional()
-        .describe("Agent model name, fallback to AGENT_MODEL"),
+        .describe(
+          "Agent model name. Only pass when explicitly specified in prompt (e.g. model@platform). Otherwise omit to use client preset."
+        ),
       scores: z
         .array(
           z.object({
@@ -250,14 +268,15 @@ mcpServer.registerTool(
         };
       }
 
+      const defaults = getClientDefaults();
       const proposal = {
         id,
         topicId,
         content,
         proposalType: type,
         round: round ?? 1,
-        agentPlatform: agentPlatform ?? process.env.AGENT_PLATFORM ?? "",
-        agentModel: agentModel ?? process.env.AGENT_MODEL ?? "",
+        agentPlatform: agentPlatform ?? defaults.platform,
+        agentModel: agentModel ?? defaults.model,
         createdAt: now,
       };
 

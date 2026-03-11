@@ -39,6 +39,7 @@ Agent Council 是一个多 Agent 协作评审系统。多个 Coding Agent 独立
 - `repo`（可选）：仓库路径
 - `commitId`（可选）：提交 hash
 - `tags`（可选）：逗号分隔标签
+- `clientRequestId`（可选）：客户端提供的幂等请求 ID。若请求可能被重试，建议传入稳定值
 
 ### `get_topic`
 
@@ -56,6 +57,7 @@ Agent Council 是一个多 Agent 协作评审系统。多个 Coding Agent 独立
 - `round`（可选）：轮次，默认 1
 - `agentPlatform`（可选）：Agent 平台名。仅在提示词中明确指定时传入（如 `model@platform`），否则不传，自动使用客户端预设值
 - `agentModel`（可选）：Agent 模型名。仅在提示词中明确指定时传入（如 `model@platform`），否则不传，自动使用客户端预设值
+- `clientRequestId`（可选）：客户端提供的幂等请求 ID。若请求可能被重试，建议传入稳定值
 - `scores`（可选）：仅评估方案使用，对其它方案的评分数组
 
 ### `get_proposals`

@@ -1,4 +1,11 @@
-import { index, int, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import {
+  index,
+  int,
+  real,
+  sqliteTable,
+  text,
+  uniqueIndex,
+} from "drizzle-orm/sqlite-core";
 import { timestamp } from "./custom-types";
 
 export const councilTopicsTable = sqliteTable(
@@ -13,6 +20,9 @@ export const councilTopicsTable = sqliteTable(
     repo: text().default("").notNull(),
     commitId: text("commit_id").default("").notNull(),
     tags: text().default("").notNull(),
+    clientRequestId: text("client_request_id"),
+    requestFingerprint: text("request_fingerprint"),
+    requestBucket: int("request_bucket"),
     proposalCount: int("proposal_count").default(0).notNull(),
     createdAt: timestamp("created_at").notNull(),
     updatedAt: timestamp("updated_at").notNull(),
@@ -20,6 +30,11 @@ export const councilTopicsTable = sqliteTable(
   (table) => [
     index("idx_ct_status").on(table.status),
     index("idx_ct_created_at").on(table.createdAt),
+    uniqueIndex("uidx_ct_client_request_id").on(table.clientRequestId),
+    uniqueIndex("uidx_ct_request_fingerprint_bucket").on(
+      table.requestFingerprint,
+      table.requestBucket,
+    ),
   ]
 );
 
@@ -37,12 +52,20 @@ export const councilProposalsTable = sqliteTable(
     round: int().default(1).notNull(),
     agentPlatform: text("agent_platform").default("").notNull(),
     agentModel: text("agent_model").default("").notNull(),
+    clientRequestId: text("client_request_id"),
+    requestFingerprint: text("request_fingerprint"),
+    requestBucket: int("request_bucket"),
     createdAt: timestamp("created_at").notNull(),
   },
   (table) => [
     index("idx_cp_topic_id").on(table.topicId),
     index("idx_cp_round").on(table.round),
     index("idx_cp_created_at").on(table.createdAt),
+    uniqueIndex("uidx_cp_client_request_id").on(table.clientRequestId),
+    uniqueIndex("uidx_cp_request_fingerprint_bucket").on(
+      table.requestFingerprint,
+      table.requestBucket,
+    ),
   ]
 );
 
@@ -63,4 +86,3 @@ export const councilScoresTable = sqliteTable(
     index("idx_cs_evaluator_proposal_id").on(table.evaluatorProposalId),
   ]
 );
-

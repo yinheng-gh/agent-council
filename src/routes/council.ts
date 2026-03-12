@@ -58,6 +58,22 @@ function normalizeClientRequestId(value?: string): string | undefined {
   return normalized ? normalized : undefined;
 }
 
+function findDuplicatedProposalIds(scores: Array<{ proposalId: string }>): string[] {
+  const seen = new Set<string>();
+  const duplicated = new Set<string>();
+
+  for (const score of scores) {
+    if (seen.has(score.proposalId)) {
+      duplicated.add(score.proposalId);
+      continue;
+    }
+
+    seen.add(score.proposalId);
+  }
+
+  return [...duplicated];
+}
+
 function isUniqueConstraintError(error: unknown): boolean {
   return (
     error instanceof Error &&
@@ -447,7 +463,7 @@ mcpServer.registerTool(
   {
     title: "Submit Council Proposal",
     description:
-      "Submit a proposal for a topic. Evaluation proposals may include scores.",
+      "Submit a proposal for a topic. Evaluation proposals must include scores for every independent proposal in the same round, including the submitter's own proposal.",
     inputSchema: {
       topicId: z.string().min(1).describe("Topic ID"),
       content: z
@@ -492,7 +508,9 @@ mcpServer.registerTool(
           })
         )
         .optional()
-        .describe("Score records used for evaluation proposals"),
+        .describe(
+          "Score records for evaluation proposals. When proposalType is evaluation, this must cover every independent proposal in the same round, including the submitter's own proposal."
+        ),
     },
   },
   async ({
@@ -601,6 +619,77 @@ mcpServer.registerTool(
           { success: false, error: "Topic not found" },
           true,
         );
+      }
+
+      if (type === "evaluation") {
+        if (!scores || scores.length === 0) {
+          return buildJsonResponse(
+            {
+              success: false,
+              error:
+                "proposalType=evaluation 时，scores 必须覆盖当前议题当前轮次的全部独立方案（包含自己的方案）。",
+            },
+            true,
+          );
+        }
+
+        const independentProposals = await db
+          .select({
+            id: councilProposalsTable.id,
+          })
+          .from(councilProposalsTable)
+          .where(
+            and(
+              eq(councilProposalsTable.topicId, topicId),
+              eq(councilProposalsTable.round, resolvedRound),
+              eq(councilProposalsTable.proposalType, "independent"),
+            ),
+          );
+
+        if (independentProposals.length === 0) {
+          return buildJsonResponse(
+            {
+              success: false,
+              error: "当前议题当前轮次还没有可评估的独立方案。",
+            },
+            true,
+          );
+        }
+
+        const expectedProposalIds = new Set(
+          independentProposals.map((proposal) => proposal.id),
+        );
+        const duplicatedProposalIds = findDuplicatedProposalIds(scores);
+        const submittedProposalIds = new Set(
+          scores.map((score) => score.proposalId),
+        );
+        const missingProposalIds = independentProposals
+          .map((proposal) => proposal.id)
+          .filter((proposalId) => !submittedProposalIds.has(proposalId));
+        const invalidProposalIds = [...submittedProposalIds].filter(
+          (proposalId) => !expectedProposalIds.has(proposalId),
+        );
+
+        if (
+          duplicatedProposalIds.length > 0 ||
+          missingProposalIds.length > 0 ||
+          invalidProposalIds.length > 0
+        ) {
+          return buildJsonResponse(
+            {
+              success: false,
+              error:
+                "evaluation 的 scores 必须且只能覆盖当前议题当前轮次的全部独立方案（包含自己的方案）。",
+              details: {
+                round: resolvedRound,
+                missingProposalIds,
+                invalidProposalIds,
+                duplicatedProposalIds,
+              },
+            },
+            true,
+          );
+        }
       }
 
       const id = crypto.randomUUID();

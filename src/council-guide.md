@@ -1,6 +1,6 @@
 # Agent Council 指南
 
-Agent Council 是一个多 Agent 协作评审系统。多个 Coding Agent 独立分析同一问题，提交各自方案，最后汇总并互评打分。全流程通过 MCP 工具完成，数据记录在数据库中。
+Agent Council 是一个多 Agent 协作评审系统。多个 Coding Agent 独立分析同一问题，提交各自方案，最后汇总并交叉评审打分。全流程通过 MCP 工具完成，数据记录在数据库中。
 
 ## 流程概述
 
@@ -22,7 +22,8 @@ Agent Council 是一个多 Agent 协作评审系统。多个 Coding Agent 独立
 
 1. 使用 `get_proposals` 查看所有独立方案的汇总
 2. 各 Agent 使用 `submit_proposal`（`proposalType=evaluation`，附带 `scores`）提交评估方案
-3. 再次调用 `get_proposals` 获取包含评分的最终汇总
+3. `scores` 必须覆盖当前议题、当前轮次的**全部独立方案**，**包含该 Agent 自己提交的独立方案**
+4. 再次调用 `get_proposals` 获取包含评分的最终汇总
 
 ## 工具列表
 
@@ -58,7 +59,7 @@ Agent Council 是一个多 Agent 协作评审系统。多个 Coding Agent 独立
 - `agentPlatform`（可选）：Agent 平台名。仅在提示词中明确指定时传入（如 `model@platform`），否则不传，自动使用客户端预设值
 - `agentModel`（可选）：Agent 模型名。仅在提示词中明确指定时传入（如 `model@platform`），否则不传，自动使用客户端预设值
 - `clientRequestId`（可选）：客户端提供的幂等请求 ID。若请求可能被重试，建议传入稳定值
-- `scores`（可选）：仅评估方案使用，对其它方案的评分数组
+- `scores`（可选）：仅评估方案使用；当 `proposalType=evaluation` 时必填。应覆盖当前议题当前轮次的全部独立方案，包含自己的方案
 
 ### `get_proposals`
 
